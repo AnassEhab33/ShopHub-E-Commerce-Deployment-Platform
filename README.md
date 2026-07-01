@@ -151,3 +151,13 @@ DEPI-DevOps-project/
 ├── .env.example
 └── README.md
 ```
+----------------------------------------------------------------------------------------------------
+
+## Team Members & Conributions:
+Anass Ehab Einshouka (Docker, Docker Compose, Kubernetes)
+Tawfiq Hashim (CI/CD pipeline)
+Ahmed Ammar (Cloud)
+Ibrahim Abdallah (Ansible)
+
+Instructor:
+Eng.Ahmed Gamil
