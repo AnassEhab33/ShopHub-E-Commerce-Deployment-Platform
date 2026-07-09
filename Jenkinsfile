@@ -1,6 +1,10 @@
 pipeline {
     agent any 
-
+    environment {
+        AWS_ACCESS_KEY_ID     = credentials('aws-access-key-id')
+        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
+        AWS_DEFAULT_REGION    = 'us-east-1'
+    }
     triggers {
         githubPush()
     }
@@ -37,13 +41,43 @@ pipeline {
         stage('Push to Docker Hub') {
             steps {
                 script {
-                    echo "Pushing images to Docker Hub..."
-                    sh 'docker push anassehab33/depi-devops-project-cart-service:latest'
-                    sh 'docker push anassehab33/depi-devops-project-order-service:latest'
-                    sh 'docker push anassehab33/depi-devops-project-payment-service:latest'
-                    sh 'docker push anassehab33/depi-devops-project-product-service:latest'
-                    sh 'docker push anassehab33/depi-devops-project-user-service:latest'
-                    sh 'docker push anassehab33/depi-devops-project-frontend:latest'
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                        sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
+                        echo "Pushing images to Docker Hub..."
+                        sh 'docker push anassehab33/depi-devops-project-cart-service:latest'
+                        sh 'docker push anassehab33/depi-devops-project-order-service:latest'
+                        sh 'docker push anassehab33/depi-devops-project-payment-service:latest'
+                        sh 'docker push anassehab33/depi-devops-project-product-service:latest'
+                        sh 'docker push anassehab33/depi-devops-project-user-service:latest'
+                        sh 'docker push anassehab33/depi-devops-project-frontend:latest'
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to AWS EKS') {
+            steps {
+                script {
+                    echo "Connecting to AWS EKS..."
+                    sh 'aws eks update-kubeconfig --name ecommerce-cluster --region us-east-1'
+
+                    echo "Applying storage class..."
+                    sh 'kubectl apply -f k8s/gp3-storageclass.yml'
+
+                    echo "Applying Kubernetes configs and databases..."
+                    sh 'kubectl apply -f k8s/config-map.yml'
+                    sh 'kubectl apply -f k8s/secret.yml'
+                    sh 'kubectl apply -f k8s/postgres-init-configmap.yml'
+                    sh 'kubectl apply -f k8s/postgres-statefulset.yml'
+                    sh 'kubectl apply -f k8s/redis-statefulset.yml'
+
+                    echo "Applying application microservices, services and ingress..."
+                    sh 'kubectl apply -f k8s/deployments/'
+                    sh 'kubectl apply -f k8s/services/'
+                    sh 'kubectl apply -f k8s/ingress.yml'
+
+                    echo "Rolling out restarts to pull the newly pushed Docker images..."
+                    sh 'kubectl rollout restart deployment -n ecommerce'
                 }
             }
         }
