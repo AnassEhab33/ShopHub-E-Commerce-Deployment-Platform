@@ -1,17 +1,22 @@
 pipeline {
     agent any 
 
+    triggers {
+        githubPush()
+    }
+
     stages {
         stage('Build Docker Images') {
             steps {
                 script {
                     echo "Building microservices images..."
                    
-                    sh 'docker build -t tawfiqeleiba/automated-e-commerce-cart:1 ./services/cart-service'
-                    sh 'docker build -t tawfiqeleiba/automated-e-commerce-order:1 ./services/order-service'
-                    sh 'docker build -t tawfiqeleiba/automated-e-commerce-payment:1 ./services/payment-service'
-                    sh 'docker build -t tawfiqeleiba/automated-e-commerce-product:1 ./services/product-service'
-                    sh 'docker build -t tawfiqeleiba/automated-e-commerce-user:1 ./services/user-service'
+                    sh 'docker build -t anassehab33/depi-devops-project-cart-service:latest ./services/cart-service'
+                    sh 'docker build -t anassehab33/depi-devops-project-order-service:latest ./services/order-service'
+                    sh 'docker build -t anassehab33/depi-devops-project-payment-service:latest ./services/payment-service'
+                    sh 'docker build -t anassehab33/depi-devops-project-product-service:latest ./services/product-service'
+                    sh 'docker build -t anassehab33/depi-devops-project-user-service:latest ./services/user-service'
+                    sh 'docker build -t anassehab33/depi-devops-project-frontend:latest ./frontend'
                 }
             }
         }
@@ -20,11 +25,11 @@ pipeline {
             steps {
                 script {
                     echo "Running tests for all services..."
-                    sh 'docker run --rm -e CI=true tawfiqeleiba/automated-e-commerce-cart:1 npm test || echo "Cart test skipped"'
-                    sh 'docker run --rm -e CI=true tawfiqeleiba/automated-e-commerce-order:1 npm test || echo "Order test skipped"'
-                    sh 'docker run --rm tawfiqeleiba/automated-e-commerce-payment:1 pytest || echo "Payment test skipped"'
-                    sh 'docker run --rm tawfiqeleiba/automated-e-commerce-product:1 pytest || echo "Product test skipped"'
-                    sh 'docker run --rm -e CI=true tawfiqeleiba/automated-e-commerce-user:1 npm test || echo "User test skipped"'
+                    sh 'docker run --rm -e CI=true anassehab33/depi-devops-project-cart-service:latest npm test || echo "Cart test skipped"'
+                    sh 'docker run --rm -e CI=true anassehab33/depi-devops-project-order-service:latest npm test || echo "Order test skipped"'
+                    sh 'docker run --rm anassehab33/depi-devops-project-payment-service:latest pytest || echo "Payment test skipped"'
+                    sh 'docker run --rm anassehab33/depi-devops-project-product-service:latest pytest || echo "Product test skipped"'
+                    sh 'docker run --rm -e CI=true anassehab33/depi-devops-project-user-service:latest npm test || echo "User test skipped"'
                 }
             }
         }
@@ -33,11 +38,12 @@ pipeline {
             steps {
                 script {
                     echo "Pushing images to Docker Hub..."
-                    sh 'docker push tawfiqeleiba/automated-e-commerce-cart:1'
-                    sh 'docker push tawfiqeleiba/automated-e-commerce-order:1'
-                    sh 'docker push tawfiqeleiba/automated-e-commerce-payment:1'
-                    sh 'docker push tawfiqeleiba/automated-e-commerce-product:1'
-                    sh 'docker push tawfiqeleiba/automated-e-commerce-user:1'
+                    sh 'docker push anassehab33/depi-devops-project-cart-service:latest'
+                    sh 'docker push anassehab33/depi-devops-project-order-service:latest'
+                    sh 'docker push anassehab33/depi-devops-project-payment-service:latest'
+                    sh 'docker push anassehab33/depi-devops-project-product-service:latest'
+                    sh 'docker push anassehab33/depi-devops-project-user-service:latest'
+                    sh 'docker push anassehab33/depi-devops-project-frontend:latest'
                 }
             }
         }

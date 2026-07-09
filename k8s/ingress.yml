@@ -10,8 +10,7 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-body-size: "50m"
 spec:
   rules:
-    - host: localhost # You can change this to your actual domain name later
-      http:
+    - http:
         paths:
           # ─── Auth & User Service ───
           - path: /api/auth
