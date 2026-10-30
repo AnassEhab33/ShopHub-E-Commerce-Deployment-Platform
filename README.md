@@ -6,35 +6,6 @@ Built as the application layer of the **Automated E-Commerce Deployment Platform
 ## Architecture
 
 ```
-                        ┌─────────────────┐
-                        │   Browser/User  │
-                        └────────┬────────┘
-                                 │
-                        ┌────────▼─────────┐
-                        │  Nginx (Port 80) │  ← API Gateway
-                        └────────┬─────────┘
-                                 │
-        ┌──────────┬─────────────┼───────────┬──────────────┐
-        │          │             │           │              │
-   ┌────▼────┐ ┌───▼──────┐ ┌───▼────┐ ┌─────▼───┐ ┌────────▼──────┐
-   │  user-  │ │ product- │ │ cart-  │ │ order-  │ │  payment-     │
-   │ service │ │ service  │ │service │ │ service │ │  service      │
-   │ :3001   │ │  :3002   │ │ :3003  │ │  :3004  │ │  :3005        │
-   │Node.js  │ │  FastAPI │ │Node.js │ │ Node.js │ │  FastAPI      │
-   └────┬────┘ └───┬──────┘ └───┬────┘ └─────┬───┘ └───────────────┘
-        │          │            │            │
-   ┌────▼────┐ ┌───▼──────┐ ┌───▼────┐ ┌─────▼───┐
-   │Postgres │ │Postgres  │ │ Redis  │ │Postgres │
-   │users_db │ │products  │ │ Cache  │ │orders_db│
-   └─────────┘ └──────────┘ └────────┘ └─────────┘
-                        ┌────────────────────────────┐
-                        │   Frontend (Next.js 14)    │ :3000
-                        └────────────────────────────┘
-```
-
-## Kubernetes Architecture
-
-```
                       ┌──────────────────┐
                       │   Client/User    │
                       └────────┬─────────┘
@@ -77,20 +48,6 @@ Built as the application layer of the **Automated E-Commerce Deployment Platform
             │ PVC (1Gi) │             │ PVC (1Gi) │  ← Persistent storage
             └───────────┘             └───────────┘
 ```
-
-### Kubernetes Component Mapping
-
-| Component Name | K8s Resource Type | Ports (Service / Pod) | Storage Volume (PVC) | Config/Secret Mounted | Description |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **ecommerce-ingress** | Ingress | `80` (External) -> internal Services | None | None | Nginx routing rules mapping endpoints to correct services. |
-| **frontend** | Deployment + Service | `3000` / `3000` | None | None | Next.js stateless frontend application pod. |
-| **user-service** | Deployment + Service | `3001` / `3001` | None | `ecommerce-config`<br>`ecommerce-secrets` | Stateless user authentication & profile backend. |
-| **product-service** | Deployment + Service | `3002` / `3002` | None | `ecommerce-config`<br>`ecommerce-secrets` | Stateless catalog & inventory management backend. |
-| **cart-service** | Deployment + Service | `3003` / `3003` | None | `ecommerce-config` | Stateless service caching user checkout baskets. |
-| **order-service** | Deployment + Service | `3004` / `3004` | None | `ecommerce-config`<br>`ecommerce-secrets` | Stateless order transaction management backend. |
-| **payment-service** | Deployment + Service | `3005` / `3005` | None | None | Stateless payment validation backend. |
-| **postgres** | StatefulSet + Headless SVC | `5432` / `5432` | `postgres-data` (1Gi) | `ecommerce-config`<br>`ecommerce-secrets`<br>`postgres-init-script` | Stateful database holding tables for users, products, and orders. |
-| **redis** | StatefulSet + Headless SVC | `6379` / `6379` | `redis-data` (1Gi) | `ecommerce-config` | Stateful database cache holding active session cart data. |
 
 ## Services
 
@@ -175,8 +132,8 @@ curl http://localhost/health/payments
 ## Mock Payment Testing
 
 The payment service simulates real payment processing:
-- ✅ **Success**: Any valid card number (e.g., `4111 1111 1111 1111`)
-- ❌ **Declined**: Any card number ending in `0000`
+-  **Success**: Any valid card number (e.g., `4111 1111 1111 1111`)
+-  **Declined**: Any card number ending in `0000`
 
 ## DevOps Integration Points
 
@@ -214,10 +171,8 @@ DEPI-DevOps-project/
 ----------------------------------------------------------------------------------------------------
 
 ## Team Members & Conributions:
-- Anass Ehab Einshouka (Docker, Docker Compose, Kubernetes)
+- Anass Ehab Einshouka (Docker, Docker Compose, Kubernetes, Cloud, Monitoring)
 - Tawfiq Hashim (CI/CD pipeline)
-- Ahmed Ammar (Cloud)
-- Ibrahim Abdallah (Ansible)
 
 Instructor:
 Eng.Ahmed Gamil
