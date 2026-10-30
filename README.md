@@ -3,7 +3,7 @@
 A production-ready, Dockerized e-commerce application built with microservices architecture.
 Built as the application layer of the **Automated E-Commerce Deployment Platform** DevOps project.
 
-## Architecture
+## Architecture (Kubernetes)
 
 ```
                       ┌──────────────────┐
